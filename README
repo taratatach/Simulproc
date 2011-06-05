@@ -1,0 +1,18 @@
+Global setup:
+ Download and install Git
+  git config --global user.name "Your Name"
+  git config --global user.email erwanguyader@gmail.com
+
+Starting a new repo on your computer
+  cd your_workspace
+  git clone git@github.com:taratatach/Simulproc.git
+
+Working on the sources:
+ Update your repository
+  cd your_repo
+  git pull
+ Adding files to the repo (creation or modification)
+  git add your_files
+  git commit -m "comment your commit"
+ Pushing files on the server
+  git push
