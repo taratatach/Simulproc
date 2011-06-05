@@ -1,7 +1,7 @@
 Global setup:
  Download and install Git
   git config --global user.name "Your Name"
-  git config --global user.email erwanguyader@gmail.com
+  git config --global user.email your_mail@toto.com
 
 Starting a new repo on your computer
   cd your_workspace
