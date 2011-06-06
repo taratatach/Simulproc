@@ -16,3 +16,10 @@ Working on the sources:
   git commit -m "comment your commit"
  Pushing files on the server
   git push
+
+Change your working branch
+ Commit all your modifications
+  (if you don't want to commit your changes : git stash)
+  (to resume your changes : git stash apply)
+ Change branch
+  git checkout branch_name
