@@ -23,3 +23,5 @@ Change your working branch
   (to resume your changes : git stash apply)
  Change branch
   git checkout branch_name
+
+Coucou je suis content !
