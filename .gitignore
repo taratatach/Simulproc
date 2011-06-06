@@ -1,2 +1,13 @@
 *.o
 *~
+asm
+doc
+Examples
+*.pdf
+*.a
+*.out
+*.bin
+*.dox
+Doxyfile
+test_simul
+
