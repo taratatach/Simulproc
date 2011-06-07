@@ -51,30 +51,25 @@ void dump_memory(Machine *pmach) {
   write(fd, &(pmach->_dataend), 4);
 
   printf("Instruction text[] {\n");
-  for(unsigned i=0; i < (pmach->_textsize/4 + pmach->_textsize%4); i++) {
-    printf("    ");
-    for(unsigned j=0; j < 4; j++) {
-      if(i+j < pmach->_textsize) {
-	write(fd, &(pmach->_text[4*i+j]), 4);
-	printf("0x%08x", (pmach->_text[4*i+j])._raw);
-	if (3*i+j != pmach->_textsize) printf(", ");
-      }
-    }
-    printf("\n");
+  for(unsigned i=0; i < pmach->_textsize; i++) {
+    write(fd, &(pmach->_text[i]), 4);
+
+    if (i%4 == 0) printf("    ");
+    printf("0x%08x", (pmach->_text[i])._raw);
+    if (i < pmach->_textsize - 1) printf(", ");
+    if (i%4 == 3 || i==pmach->_textsize - 1) printf("\n");
   }
+
   printf("};\nunsigned textsize = %d;\n\n", pmach->_textsize);
 
   printf("Word data[] {\n");
-  for(unsigned i=0; i < (pmach->_dataend/4 + pmach->_dataend%4); i++) {
-    printf("    ");
-    for(unsigned j=0; j < 4; j++) {
-      if(i+j < pmach->_dataend) {
-	write(fd, &(pmach->_data[4*i+j]), 4);
-	printf("0x%08x", pmach->_data[4*i+j]);
-	if (3*i+j != pmach->_dataend) printf(", ");
-      }
-    }
-    printf("\n");
+  for(unsigned i=0; i < pmach->_dataend; i++) {
+    write(fd, &(pmach->_data[i]), 4);
+    
+    if (i%4 == 0) printf("    ");
+    printf("0x%08x", pmach->_data[i]);
+    if (i < pmach->_dataend - 1) printf(", ");
+    if (i%4 == 3 || i==pmach->_dataend - 1) printf("\n");
   }
   printf("};\nunsigned datasize = %d;\n", pmach->_datasize);
   printf("unsigned dataend = %d;\n", pmach->_dataend);
@@ -92,10 +87,9 @@ void print_program(Machine *pmach) {
 
 void print_data(Machine *pmach) {
   printf("\n\n*** DATA (size: %d, end = 0x%08x (%d)) ***\n", pmach->_datasize, pmach->_dataend, pmach->_dataend);
-  for(unsigned i = 0; i < pmach->_datasize/3 + pmach->_datasize%3; i++) {
-    for(unsigned j = 0; j < 3; j++)
-      if (3*i+j < pmach->_datasize) printf("0x%04x: 0x%08x %d\t", 3*i+j, pmach->_data[3*i+j], pmach->_data[3*i+j]);
-    printf("\n");
+  for(unsigned i = 0; i < pmach->_datasize; i++) {
+    printf("0x%04x: 0x%08x %d\t", i, pmach->_data[i], pmach->_data[i]);
+    if (i%3 == 2 || i == pmach->_datasize - 1) printf("\n");
   }
 }
 
@@ -103,21 +97,21 @@ void print_cpu(Machine *pmach) {
   printf("\n\n*** CPU ***\n");
   printf("PC:  0x%08x   CC: %c\n\n", pmach->_pc,
 	 (pmach->_cc == CC_U) ? 'U' : (pmach->_cc == CC_Z) ? 'Z' : (pmach->_cc == CC_P) ? 'P' : 'N');
-  for(unsigned i = 0; i < NREGISTERS/3 + NREGISTERS%3; i++) {
-    for(unsigned j = 0; j < 3; j++)
-      if (3*i+j < NREGISTERS) printf("R%02d: 0x%08x %d\t", 3*i+j, pmach->_registers[3*i+j], pmach->_registers[3*i+j]);
-    printf("\n");
+  for(unsigned i = 0; i < NREGISTERS; i++) {
+    printf("R%02d: 0x%08x %d\t", i, pmach->_registers[i], pmach->_registers[i]);
+    if (i%3 == 2 || i == NREGISTERS - 1) printf("\n");
   }
 }
 
 void simul(Machine *pmach, bool debug) {
   if (debug) {
-    while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc]))
+    while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++])) {
+      trace("", pmach, pmach->_text[pmach->_pc-1], pmach->_pc-1);
       if (!debug_ask(pmach)) { debug = false; break; }
+    }
   }
   if (!debug) {
-    while (pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc])) {
-      printf("0x%08x\n", pmach->_pc);
-    }
+    while (pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++]))
+      trace("", pmach, pmach->_text[pmach->_pc-1], pmach->_pc-1);
   }
 }
