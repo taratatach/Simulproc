@@ -7,24 +7,24 @@ const char *condition_names[] = {"NC", "EQ", "NE", "GT", "GE", "LT", "LE"};
 
 void print_instruction(Instruction instr, unsigned addr) {
 	Code_Op op = instr.instr_generic._cop;
-	printf("%d: %d ", addr, op); 
+	printf("%s ", cop_names[op]); 
 
-	if (op == LOAD || op == STORE || op == ADD || op == SUB || op == BRANCH || op == CALL) {
-		if (op != BRANCH || op != CALL) {
-			printf("R");
-		}
-		printf("%d, ", instr.instr_generic._regcond);
+	if (op == LOAD || op == STORE || op == ADD || op == SUB) {
+		printf("R%02x, ", instr.instr_generic._regcond);
+	}
+	else if (op == BRANCH || op == CALL) {
+		printf("%s, ", condition_names[instr.instr_generic._regcond]);
 	}
 	if (op != ILLOP || op != NOP || op != RET || op != HALT) {
 		if (instr.instr_generic._immediate == 1) {
-			printf("#%d, ", instr.instr_absolute._address);
+			printf("#%d", instr.instr_absolute._address);
 		}
 		else {
 			if (instr.instr_generic._indexed == 0) {
-				printf("@%d, ", instr.instr_immediate._value);
+				printf("@0x%04x", instr.instr_immediate._value);
 			}
 			else if (instr.instr_generic._indexed == 1) {
-				printf("+%d[R%d], ", instr.instr_indexed._offset, instr.instr_indexed._rindex);
+				printf("%d[R%02d]", instr.instr_indexed._offset, instr.instr_indexed._rindex);
 			}
 		}
 	}
