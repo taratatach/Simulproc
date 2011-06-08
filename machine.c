@@ -44,7 +44,7 @@ void read_program(Machine *mach, const char *programfile) {
 }
 
 void dump_memory(Machine *pmach) {
-  int fd = open("dump.prog", O_WRONLY|O_CREAT|O_TRUNC, 0644);
+  int fd = open("dump.bin", O_WRONLY|O_CREAT|O_TRUNC, 0644);
   
   write(fd, &(pmach->_textsize), 4);
   write(fd, &(pmach->_datasize), 4);
@@ -104,15 +104,9 @@ void print_cpu(Machine *pmach) {
 }
 
 void simul(Machine *pmach, bool debug) {
-  trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
-  if (debug) {
-    while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++])) {
-      trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
-      if (!debug_ask(pmach)) { debug = false; break; }
-    }
-  }
-  if (!debug) {
-    while (pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++]))
-      trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
+  trace("Executing", pmach, pmach->_text[pmach->_pc], pmach->_pc);
+  while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++])) {
+    trace("Executing", pmach, pmach->_text[pmach->_pc], pmach->_pc);
+    if (debug) debug = debug_ask(pmach);
   }
 }
