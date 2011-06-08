@@ -104,14 +104,15 @@ void print_cpu(Machine *pmach) {
 }
 
 void simul(Machine *pmach, bool debug) {
+  trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
   if (debug) {
     while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++])) {
-      trace("", pmach, pmach->_text[pmach->_pc-1], pmach->_pc-1);
+      trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
       if (!debug_ask(pmach)) { debug = false; break; }
     }
   }
   if (!debug) {
     while (pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++]))
-      trace("", pmach, pmach->_text[pmach->_pc-1], pmach->_pc-1);
+      trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
   }
 }
