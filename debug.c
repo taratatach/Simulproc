@@ -10,8 +10,7 @@ bool debug_ask(Machine *pmach){
     //le tableau de char de réponse
     char tab[101] = {0};
     //on demande de taper quelque chose
-    int ok = 0; //indique si on a besoin de redemander de taper qqch
-    do{
+    while(true){
         printf("DEBUG? ");
         fgets (tab, 100, stdin);
         
@@ -67,6 +66,6 @@ bool debug_ask(Machine *pmach){
                 print_data(pmach);
                 break;
         }
-    }while(!ok);
+    }
     
 }
