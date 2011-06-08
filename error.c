@@ -3,34 +3,39 @@
 #include "error.h"
 
 void error(Error err, unsigned addr) {
-	printf("%d : ", addr);
+	printf("ERROR: ");
 	switch(err) {
+		case ERR_NOERROR:
+			printf("NOERROR Pas d'erreur");
+			break;
 		case ERR_UNKNOWN:
-			printf("Instruction inconnue");
+			printf("UNKNOWN Instruction inconnue");
 			break;	
 		case ERR_ILLEGAL:
-			printf("Instruction illégale");
+			printf("ILLEGAL Instruction illégale");
 			break;
 		case ERR_CONDITION:
-			printf("Condition illégale");
+			printf("CONDITION Condition illégale");
 			break;
 		case ERR_IMMEDIATE:
-			printf("Valeur immédiate interdite");
+			printf("IMMEDIATE Valeur immédiate interdite");
 			break;
 		case ERR_SEGTEXT:
-			printf("Violation de taille du segment de texte");
+			printf("SEGTEXT Violation de taille du segment de texte");
 			break;
 		case ERR_SEGDATA:
-			printf("Violation de taille du segment de données");
+			printf("SEGDATA Violation de taille du segment de données");
 			break;
 		case ERR_SEGSTACK:
-			printf("Violation de taille du segment de pile");
+			printf("SEGSTACK Violation de taille du segment de pile");
 			break;
 	}
-	fflush(stdout);
+	printf(": 0x%x\n", addr);
 	exit(0);
 }
 
 void warning(Warning warn, unsigned addr) {
-	printf("%d : fin normale du programme\n", addr);
+	if (warn == WARN_HALT) {
+		printf("WARNING: HALT fin normale du programme atteint à l'adresse: 0x%x\n", addr);
+	}
 }
