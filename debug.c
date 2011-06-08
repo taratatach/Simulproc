@@ -5,6 +5,10 @@
 #include "exec.h"
 #include "debug.h"
 
+/*
+ * Affiche les instructions une par une et demande des 
+ * instructions à l'utilisateur sur la suite de l'exécution du programme
+ */
 bool debug_ask(Machine *pmach){
 
     //le tableau de char de réponse
