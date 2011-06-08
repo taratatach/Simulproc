@@ -10,7 +10,7 @@ void print_instruction(Instruction instr, unsigned addr) {
 	printf("%s ", cop_names[op]); 
 
 	if (op == LOAD || op == STORE || op == ADD || op == SUB) {
-		printf("R%02x, ", instr.instr_generic._regcond);
+		printf("R%02d, ", instr.instr_generic._regcond);
 	}
 	else if (op == BRANCH || op == CALL) {
 		printf("%s, ", condition_names[instr.instr_generic._regcond]);
