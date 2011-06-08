@@ -36,6 +36,6 @@ void error(Error err, unsigned addr) {
 
 void warning(Warning warn, unsigned addr) {
 	if (warn == WARN_HALT) {
-		printf("WARNING: HALT fin normale du programme atteint à l'adresse: 0x%x\n", addr);
+		printf("WARNING: HALT fin normale du programme atteinte à l'adresse: 0x%x\n", addr);
 	}
 }
