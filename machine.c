@@ -104,9 +104,9 @@ void print_cpu(Machine *pmach) {
 }
 
 void simul(Machine *pmach, bool debug) {
-  trace("Executing", pmach, pmach->_text[pmach->_pc], pmach->_pc);
+  trace("", pmach, pmach->_text[pmach->_pc], pmach->_pc);
   while(pmach->_pc < pmach->_textsize && decode_execute(pmach, pmach->_text[pmach->_pc++])) {
-    trace("Executing", pmach, pmach->_text[pmach->_pc], pmach->_pc);
     if (debug) debug = debug_ask(pmach);
+    trace("Executing", pmach, pmach->_text[pmach->_pc], pmach->_pc);
   }
 }
