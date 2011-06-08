@@ -68,4 +68,5 @@ bool debug_ask(Machine *pmach){
         }
     }
     
+    return false;
 }
