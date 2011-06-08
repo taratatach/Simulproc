@@ -15,7 +15,7 @@ void print_instruction(Instruction instr, unsigned addr) {
 	else if (op == BRANCH || op == CALL) {
 		printf("%s, ", condition_names[instr.instr_generic._regcond]);
 	}
-	if (op != ILLOP || op != NOP || op != RET || op != HALT) {
+	if (op != ILLOP && op != NOP && op != RET && op != HALT) {
 		if (instr.instr_generic._immediate == 1) {
 			printf("#%d", instr.instr_absolute._address);
 		}
