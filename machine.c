@@ -10,7 +10,7 @@
 void load_program(Machine *pmach,
 		  unsigned textsize, Instruction text[textsize],
 		  unsigned datasize, Word data[datasize], unsigned dataend) {
-  (dataend <= (datasize - MINSTACKSIZE)) ? pmach->_dataend = dataend : exit(1); //TODO : erreur à afficher
+  (dataend <= (datasize - MINSTACKSIZE)) ? pmach->_dataend = dataend : (printf("ERROR : Taille de pile insuffisante\n"), exit(1));
   pmach->_text = text;
   pmach->_textsize = textsize;
   pmach->_data = data;
