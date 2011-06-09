@@ -271,6 +271,7 @@ bool branch(Machine * pmach, Instruction instr)
 {
     //addressage absolu et indexé
     check_error_immediate(pmach, instr);
+    check_error_segtext(pmach);
 
     if (jump_allowed(pmach, instr))
     {
@@ -290,6 +291,7 @@ bool call(Machine * pmach, Instruction instr)
 {
     //addressage absolu et indexé
     check_error_immediate(pmach, instr);
+    check_error_segtext(pmach);
 
     if (jump_allowed(pmach, instr))
     {
