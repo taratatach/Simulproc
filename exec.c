@@ -93,9 +93,9 @@ void check_error_segdata(Machine * pmach, unsigned addr)
 }
 
 
-void check_error_segtext(Machine * pmach)
+void check_error_segtext(Machine * pmach, unsigned addr)
 {
-    if (pmach->_pc >= pmach->_textsize)
+    if (addr >= pmach->_textsize)
     {
 	error(ERR_SEGTEXT, pmach->_pc - 1);
 	free(pmach->_text);
@@ -271,7 +271,6 @@ bool branch(Machine * pmach, Instruction instr)
 {
     //addressage absolu et indexé
     check_error_immediate(pmach, instr);
-    check_error_segtext(pmach);
 
     if (jump_allowed(pmach, instr))
     {
@@ -291,7 +290,6 @@ bool call(Machine * pmach, Instruction instr)
 {
     //addressage absolu et indexé
     check_error_immediate(pmach, instr);
-    check_error_segtext(pmach);
 
     if (jump_allowed(pmach, instr))
     {
@@ -378,11 +376,8 @@ bool halt(Machine * pmach, Instruction instr)
 
 bool decode_execute(Machine * pmach, Instruction instr)
 {
-  
-  printf("illegal\n");
-    
     unsigned addr = address(pmach, instr);
-    check_error_segtext(pmach);
+    check_error_segtext(pmach, addr);
     
     switch (instr.instr_generic._cop)
     {
