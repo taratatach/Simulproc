@@ -10,3 +10,4 @@ Examples
 *.dox
 Doxyfile
 test_simul
+prog.c

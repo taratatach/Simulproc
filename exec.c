@@ -93,9 +93,9 @@ void check_error_segdata(Machine * pmach, unsigned addr)
 }
 
 
-void check_error_segtext(Machine * pmach, unsigned addr)
+void check_error_segtext(Machine * pmach)
 {
-    if (addr >= pmach->_textsize)
+    if (pmach->_pc >= pmach->_textsize)
     {
 	error(ERR_SEGTEXT, pmach->_pc - 1);
 	free(pmach->_text);
@@ -380,7 +380,7 @@ bool decode_execute(Machine * pmach, Instruction instr)
   
     
     unsigned addr = address(pmach, instr);
-    check_error_segtext(pmach, addr);
+    check_error_segtext(pmach);
     
     switch (instr.instr_generic._cop)
     {
