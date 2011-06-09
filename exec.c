@@ -92,6 +92,17 @@ void check_error_segdata(Machine * pmach, unsigned addr)
     }
 }
 
+
+void check_error_segtext(Machine * pmach, unsigned addr)
+{
+    if (addr >= pmach->_textsize)
+    {
+	error(ERR_SEGTEXT, pmach->_pc - 1);
+	free(pmach->_text);
+	free(pmach->_data);
+    }
+}
+
 //! Effectue un ILLOP sur la machine
 /*!
 * \param pmach la machine/programme en cours d'exécution
@@ -367,9 +378,10 @@ bool decode_execute(Machine * pmach, Instruction instr)
 {
   
   
-
+    
     unsigned addr = address(pmach, instr);
-
+    check_error_segtext(pmach, addr);
+    
     switch (instr.instr_generic._cop)
     {
 
