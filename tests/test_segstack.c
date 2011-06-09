@@ -1,0 +1,30 @@
+#include "machine.h"
+
+
+Instruction text[] = {
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {PUSH, false, false, 0, 1}},
+  {.instr_absolute = {HALT,                   }}
+};
+
+const unsigned textsize = sizeof(text) / sizeof(Instruction);
+
+Word data[20] = {
+  10,
+  5,
+  20,
+  0
+};
+
+const unsigned dataend = 10;
+
+const unsigned datasize = sizeof(data) / sizeof(Word);
