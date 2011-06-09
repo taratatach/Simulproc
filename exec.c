@@ -377,7 +377,7 @@ bool halt(Machine * pmach, Instruction instr)
 bool decode_execute(Machine * pmach, Instruction instr)
 {
   
-  
+  printf("illegal\n");
     
     unsigned addr = address(pmach, instr);
     check_error_segtext(pmach);
