@@ -2,7 +2,18 @@
 #include "error.h"
 #include "exec.h"
 
+/*!
+* \file exec.c
+* \brief Execute une instruction.
+*/
 
+
+
+//! Met à jour le code condition
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param res dernier résultat obtenu
+*/
 void update_cc(Machine * pmach, int res)
 {
     if (res < 0)
@@ -15,6 +26,12 @@ void update_cc(Machine * pmach, int res)
 	pmach->_cc = CC_P;
 }
 
+//! Calcule l'adresse d'une instruction en mode indexé ou absolu
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr instruction à exécuter
+* \return adresse indexée si mode indexé, sinon absolue
+*/
 unsigned address(Machine * pmach, Instruction instr)
 {
     if (instr.instr_generic._indexed)
@@ -28,73 +45,99 @@ unsigned address(Machine * pmach, Instruction instr)
     }
 }
 
-void error_immediate(Machine * pmach, Instruction instr)
+//! Vérifie si l'instruction est en mode immédiat
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+*/
+void check_error_immediate(Machine * pmach, Instruction instr)
 {
     if (instr.instr_generic._immediate)
     {
+	error(ERR_IMMEDIATE, pmach->_pc - 1);
 	free(pmach->_text);
 	free(pmach->_data);
-	error(ERR_IMMEDIATE, pmach->_pc - 1);
     }
 }
 
-
-void error_segstack(Machine * pmach)
+//! Vérifie si l'on veut sortir de la pile ou non
+/*!
+* \param pmach la machine/programme en cours d'exécution
+*/
+void check_error_segstack(Machine * pmach)
 {
     if (pmach->_sp < 0 || pmach->_sp >= pmach->_datasize)
     {
+	error(ERR_SEGSTACK, pmach->_pc - 1);
 	free(pmach->_text);
 	free(pmach->_data);
-	error(ERR_SEGSTACK, pmach->_pc - 1);
     }
 }
 
-
-
-void error_segdata(Machine * pmach, unsigned addr)
+/*!
+* Vérifie si l'on essaaie d'accèder à une donnée en dehors
+* du segment de données ou non
+*/
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param addr l'adresse de la donnée à laquelle on veut accèder
+*/
+void check_error_segdata(Machine * pmach, unsigned addr)
 {
     if (addr >= pmach->_datasize)
     {
+	error(ERR_SEGDATA, pmach->_pc - 1);
 	free(pmach->_text);
 	free(pmach->_data);
-	error(ERR_SEGDATA, pmach->_pc - 1);
     }
 }
 
-
-
-
+//! Effectue un ILLOP sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return aucun
+*/
 bool illop(Machine * pmach, Instruction instr)
 {
+    error(ERR_ILLEGAL, pmach->_pc - 1);
     free(pmach->_text);
     free(pmach->_data);
-    error(ERR_ILLEGAL, pmach->_pc - 1);
 }
 
-
+//! Effectue un NOP sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true
+*/
 bool nop(Machine * pmach, Instruction instr)
 {
     return true;
 }
 
-
+//! Effectue un LOAD sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool load(Machine * pmach, Instruction instr)
 {
 
 
-
-    if (!instr.instr_generic._immediate)
-    {
-	unsigned addr = address(pmach, instr);
-	error_segdata(pmach, addr);
-	pmach->_registers[instr.instr_generic._regcond] =
-	    pmach->_data[addr];
-    }
-
-    else
+    if (instr.instr_generic._immediate) // I=1
     {
 	pmach->_registers[instr.instr_generic._regcond] =
 	    instr.instr_immediate._value;
+    }
+
+    else // I=0
+    {
+      	unsigned addr = address(pmach, instr);
+	check_error_segdata(pmach, addr);
+	pmach->_registers[instr.instr_generic._regcond] =
+	    pmach->_data[addr];	
     }
 
     update_cc(pmach, pmach->_registers[instr.instr_generic._regcond]);
@@ -102,62 +145,85 @@ bool load(Machine * pmach, Instruction instr)
 
 }
 
+//! Effectue un STORE sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool store(Machine * pmach, Instruction instr)
 {
-
-    error_immediate(pmach, instr);
+    //source registre
+    //addressage absolu et indexé
+    check_error_immediate(pmach, instr); 
 
     unsigned addr = address(pmach, instr);
 
-    error_segdata(pmach, addr);
+    check_error_segdata(pmach, addr);
     pmach->_data[addr] = pmach->_registers[instr.instr_generic._regcond];
 
     return true;
 }
 
+//! Effectue un ADD sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool add(Machine * pmach, Instruction instr)
 {
 
-    if (!instr.instr_generic._immediate)
+    if (instr.instr_generic._immediate) // I=1
     {
-	unsigned addr = address(pmach, instr);
-	error_segdata(pmach, addr);
-
+      	pmach->_registers[instr.instr_generic._regcond] +=
+	    instr.instr_immediate._value;
+	
+    }
+    else // I=0
+    {
+        unsigned addr = address(pmach, instr);
+        check_error_segdata(pmach, addr);
 	pmach->_registers[instr.instr_generic._regcond] +=
 	    pmach->_data[addr];
-    }
-    else
-    {
-	pmach->_registers[instr.instr_generic._regcond] +=
-	    instr.instr_immediate._value;
     }
 
     update_cc(pmach, pmach->_registers[instr.instr_generic._regcond]);
     return true;
 }
 
-
+//! Effectue un SUB sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool sub(Machine * pmach, Instruction instr)
 {
 
-    if (!instr.instr_generic._immediate)
+    if (instr.instr_generic._immediate) // I=1
+    {
+	pmach->_registers[instr.instr_generic._regcond] -=
+	    instr.instr_immediate._value;      
+    } 
+    else // I=0
     {
 	unsigned addr = address(pmach, instr);
-	error_segdata(pmach, addr);
-
+	check_error_segdata(pmach, addr);
 	pmach->_registers[instr.instr_generic._regcond] -=
 	    pmach->_data[addr];
-    } 
-    else
-    {
-	pmach->_registers[instr.instr_generic._regcond] -=
-	    instr.instr_immediate._value;
     }
 
     update_cc(pmach, pmach->_registers[instr.instr_generic._regcond]);
     return true;
 }
 
+//! Vérifie si la condition nous autorise à effectuer un jump
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si on doit effectuer un jump
+*/
 bool jump_allowed(Machine * pmach, Instruction instr)
 {
 
@@ -175,20 +241,25 @@ bool jump_allowed(Machine * pmach, Instruction instr)
 	return (pmach->_cc == CC_P || pmach->_cc == CC_Z);
     case LT:			//Strictement négatif
 	return (pmach->_cc == CC_N);
-    case LE:
+    case LE:			//Négatif ou nul
 	return (pmach->_cc == CC_N || pmach->_cc == CC_Z);
-    default:			//Négatif ou nul
+    default:			//Condition inconnue
+	error(ERR_CONDITION, pmach->_pc -1);
 	free(pmach->_text);
 	free(pmach->_data);
-	error(ERR_CONDITION, pmach->_pc -1);
     }
 }
 
-
+//! Effectue un BRANCH sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool branch(Machine * pmach, Instruction instr)
 {
-
-    error_immediate(pmach, instr);
+    //addressage absolu et indexé
+    check_error_immediate(pmach, instr);
 
     if (jump_allowed(pmach, instr))
     {
@@ -198,9 +269,16 @@ bool branch(Machine * pmach, Instruction instr)
     return true;
 }
 
+//! Effectue un CALL sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool call(Machine * pmach, Instruction instr)
 {
-    error_immediate(pmach, instr);
+    //addressage absolu et indexé
+    check_error_immediate(pmach, instr);
 
     if (jump_allowed(pmach, instr))
     {
@@ -211,37 +289,57 @@ bool call(Machine * pmach, Instruction instr)
     return true;
 }
 
+//! Effectue un RET sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool ret(Machine * pmach, Instruction instr)
 {
     ++pmach->_sp;
-    error_segstack(pmach);
+    check_error_segstack(pmach);
     pmach->_pc = pmach->_data[pmach->_sp];
     return true;
 }
 
+//! Effectue un PUSH sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool push(Machine * pmach, Instruction instr)
 {
-    error_segstack(pmach);
+    check_error_segstack(pmach);
 
-    if (!instr.instr_generic._immediate)
+    if (instr.instr_generic._immediate) // I=1
     {
-	unsigned addr = address(pmach, instr);
-	error_segdata(pmach, addr);
-	pmach->_data[pmach->_sp] = pmach->_data[addr];
+	pmach->_data[pmach->_sp] = instr.instr_immediate._value;
     }
 
-    else
-	pmach->_data[pmach->_sp] = instr.instr_immediate._value;
-
+    else // I=0
+    {
+	unsigned addr = address(pmach, instr);
+	check_error_segdata(pmach, addr);
+	pmach->_data[pmach->_sp] = pmach->_data[addr];
+    }
     --pmach->_sp;
     return true;
 }
 
+//! Effectue un POP sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return true si aucune erreur
+*/
 bool pop(Machine * pmach, Instruction instr)
 {
+    //addressage absolu et indexé
     ++pmach->_sp;
-    error_segstack(pmach);
-    error_immediate(pmach, instr);
+    check_error_segstack(pmach);
+    check_error_immediate(pmach, instr);
 
     unsigned addr = address(pmach, instr);
 
@@ -251,6 +349,12 @@ bool pop(Machine * pmach, Instruction instr)
     return true;
 }
 
+//! Effectue un HALT sur la machine
+/*!
+* \param pmach la machine/programme en cours d'exécution
+* \param instr l'instruction à exécuter
+* \return false
+*/
 bool halt(Machine * pmach, Instruction instr)
 {
     warning(WARN_HALT, pmach->_pc - 1);
@@ -259,10 +363,10 @@ bool halt(Machine * pmach, Instruction instr)
 
 
 
-
-
 bool decode_execute(Machine * pmach, Instruction instr)
 {
+  
+  
 
     unsigned addr = address(pmach, instr);
 
@@ -300,8 +404,7 @@ bool decode_execute(Machine * pmach, Instruction instr)
 
 
 
-void
-trace(const char *msg, Machine * pmach, Instruction instr, unsigned addr)
+void trace(const char *msg, Machine * pmach, Instruction instr, unsigned addr)
 {
     printf("TRACE: %s: 0x%04x: ", msg, addr);
     print_instruction(instr, addr);
