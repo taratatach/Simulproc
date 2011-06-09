@@ -66,7 +66,7 @@ void check_error_immediate(Machine * pmach, Instruction instr)
 */
 void check_error_segstack(Machine * pmach)
 {
-    if (pmach->_sp < 0 || pmach->_sp >= pmach->_datasize)
+    if (pmach->_sp < pmach->_dataend || pmach->_sp >= pmach->_datasize)
     {
 	error(ERR_SEGSTACK, pmach->_pc - 1);
 	free(pmach->_text);
