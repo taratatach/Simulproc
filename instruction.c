@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include "instruction.h"
 
+//initialisation des tableaux
 const char *cop_names[] = {"ILLOP", "NOP", "LOAD", "STORE", "ADD", "SUB", "BRANCH", "CALL", "RET", "PUSH", "POP", "HALT"};
 const char *condition_names[] = {"NC", "EQ", "NE", "GT", "GE", "LT", "LE"};
 
+//fonction qui affiche les instructions en langage assembleur
 void print_instruction(Instruction instr, unsigned addr) {
 	Code_Op op = instr.instr_generic._cop;
 	printf("%s ", cop_names[op]); 
