@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "error.h"
 
+//fonction qui affiche le type d'erreur
 void error(Error err, unsigned addr) {
 	printf("ERROR: ");
 	switch(err) {
@@ -34,6 +35,7 @@ void error(Error err, unsigned addr) {
 	exit(0);
 }
 
+//fonction qui affiche le type d'avertissement
 void warning(Warning warn, unsigned addr) {
 	if (warn == WARN_HALT) {
 		printf("WARNING: HALT fin normale du programme atteinte à l'adresse: 0x%x\n", addr);
